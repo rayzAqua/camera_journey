@@ -4,22 +4,40 @@ import { Types } from "mongoose";
 const CartSchema = new mongoose.Schema(
   {
     customer: {
-      fname: { type: String, required: true },
-      lname: { type: String, required: true },
-      email: { type: String, required: true },
-      phone: { type: String, required: true },
-      image: { type: String, required: true },
-    },
-    products: {
-      type: [Types.ObjectId],
-      ref: "Product",
+      type: Types.ObjectId,
+      ref: "Customer",
       required: true,
     },
-    quantity: {
-      type: Number,
-      min: 1,
-      required: true,
-    },
+    items: [
+      {
+        product_id: {
+          type: Types.ObjectId,
+          required: true,
+        },
+        product_name: {
+          type: String,
+          required: true,
+        },
+        product_thumbnails: {
+          type: [String],
+          default: [],
+        },
+        product_brand: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: String,
+          min: 0,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          min: 1,
+          required: true,
+        },
+      },
+    ],
     status: {
       type: String,
       enum: ["active", "inactive"],

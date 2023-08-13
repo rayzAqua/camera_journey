@@ -1,5 +1,10 @@
 import express from "express";
-import { createCart } from "../controllers/cart_controllers.js";
+import {
+  createCart,
+  getCart,
+  removeCart,
+  updateCart,
+} from "../controllers/cart_controllers.js";
 import {
   verifyStaff,
   verifyManager,
@@ -12,12 +17,12 @@ const router = express.Router();
 router.post("/:userid/", verifyToken, createCart);
 
 // UPDATE
-router.put("/:userid/:cartid", verifyToken);
+router.put("/:userid/:cartid", verifyToken, updateCart);
+
+// REMOVE
+router.delete("/:userid/:cartid", verifyToken, removeCart);
 
 // GET ONE
-router.get("/:userid/:cartid", verifyToken);
-
-// GET ALL
-router.get("/:userid/", verifyStaff);
+router.get("/:userid/", verifyToken, getCart);
 
 export default router;

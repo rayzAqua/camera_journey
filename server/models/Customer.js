@@ -49,12 +49,9 @@ const CustomerSchema = new mongoose.Schema(
       type: Object,
       default: {},
     },
-    carts: {
-      type: [Types.ObjectId],
-      default: [],
-    },
     orders: {
       type: [Types.ObjectId],
+      ref: "Order",
       default: [],
     },
     status: {

@@ -9,24 +9,33 @@ const OrderSchema = new mongoose.Schema(
       email: { type: String, required: true },
       phone: { type: String, required: true },
     },
-    shipping_address: {
-      type: Object,
-    },
     cart: {
       type: Types.ObjectId,
-      required: true,
-    },
-    products: {
-      type: [Object],
+      ref: "Cart",
       required: true,
     },
     payment: {
       type: Object,
-      // required: true,
+      default: {},
     },
+    shipping_address: {
+      type: Object,
+      required: true,
+    },
+    total: {
+      type: String,
+      required: true,
+    },
+    staff: [
+      {
+        fname: { type: String, required: true },
+        lname: { type: String, required: true },
+        modifiedAt: { type: Date, default: Date.now },
+      },
+    ],
     status: {
       type: String,
-      enum: ["pending", "process", "complete", "cancel"],
+      enum: ["pending", "process", "shipping", "complete", "cancel"],
       default: "pending",
     },
   },
