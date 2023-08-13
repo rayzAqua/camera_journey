@@ -136,7 +136,7 @@ export const updateCart = async (req, res, next) => {
       );
 
       // If quantity after update === 0 -> remove it
-      if (updateData && updateData.items.some((item) => item.quantity === 0)) {
+      if (updateData && updateData.items.some((item) => item.quantity <= 0)) {
         updateData = await Cart.findOneAndUpdate(
           { "items.product_id": product._id },
           { $pull: { items: { product_id: product._id } } },

@@ -30,6 +30,14 @@ export const createOrder = async (req, res, next) => {
     await Promise.all(
       cart.items.map(async (item) => {
         const productInCart = await Product.findById(item.product_id);
+
+        if (productInCart.status === "inactive") {
+          throw createError(
+            400,
+            `Có sản phẩm không khả dụng: ${productInCart.product_name}`
+          );
+        }
+
         if (productInCart.quantity < item.quantity) {
           throw createError(
             400,
