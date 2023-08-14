@@ -1,139 +1,194 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout/Layout";
 import { useAuthContext } from "../../context/auth";
-import { useCartContext } from "../../context/cart";
 import { styled } from "styled-components";
-import Slider from "../../components/Slider/Slider";
+import useFetch from "../../hooks/useFetch";
+import { toast } from "react-toastify";
+import { Add, ChevronLeft, Remove } from "@material-ui/icons";
+import Modal from "../../components/Modal/Modal";
+import CartItem from "../../components/Cart/CartItem";
+import OrderModal from "../../components/Modal/OrderModal";
 
-const Title = styled.h1`
+const Container = styled.div``;
+
+const Row = styled.div``;
+
+const ErrorDiv = styled.div``;
+
+const Left = styled.div``;
+
+const Title = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const BackButton = styled.p`
+  position: absolute;
+  text-align: left;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  &:hover {
+    color: gray;
+    cursor: pointer;
+  }
+`;
+
+const TitleName = styled.h4`
+  text-align: center;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0 auto;
+`;
+
+const CartContainer = styled.div``;
+
+const Right = styled.div``;
+
+const PaymentContainer = styled.div`
+  width: 30%;
+`;
+
+const RightTitleWrapper = styled.div``;
+
+const RightTitle = styled.h5`
+  font-weight: bold;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 auto;
+`;
+
+const Money = styled.span`
+  font-weight: 500;
+`;
+
+const Line = styled.hr``;
+
+const ButtonContainer = styled.div``;
+
+const ButtonGroup = styled.div``;
+
+const Button = styled.button``;
+
+const Loading = styled.h4`
   text-align: start;
+  margin-bottom: 35px;
   font-weight: 700;
   font-family: "Poppins", sans-serif;
   text-transform: uppercase;
   letter-spacing: 2px;
 `;
 
-const ItemContainer = styled.div`
-  margin-right: 7px;
-  margin-left: 7px;
-  transition: all 0.3s ease;
-  &:hover {
-    transform: scale(1.02);
-  }
-`;
-
-const Thumbnail = styled.div`
-  margin: auto;
-`;
-
-const Right = styled.div``;
-
-const UserInfoContainer = styled.div`
-  width: 30%;
+const NotFound = styled.div`
+  font-weight: 500;
 `;
 
 const CartPage = () => {
   const [auth, setAuth] = useAuthContext();
-  const [cart, setCart] = useCartContext();
   const navigate = useNavigate();
+
+  const { data, loading, error } = useFetch(`/cart/${auth.user._id}`, {
+    headers: {
+      Authorization: `${auth.token}`,
+    },
+  });
+
+  const total = data?.cart?.items?.reduce((accu, curr) => {
+    return accu + Number(curr.price) * curr.quantity;
+  }, 0);
 
   return (
     <Layout>
-      <div className="container p-4 mt-5 mb-5">
-        <div className="row">
-          <Title className="mb-3">Giỏ hàng</Title>
-          <div className="col-md-8">
-            <div className="bg-warning-subtle border-0 rounded-2 shadow p-3">
-              <ItemContainer
-                className="row mt-2 mb-2 p-3 flex-row bg-white border-2 rounded-2 shadow"
-                onClick={() => navigate(`/shop/lskdjfaksdfhasjd`)}
-              >
-                <Thumbnail className="col-md-4 bg-light text-center">
-                  <Slider
-                    data={[
-                      {
-                        isSingleProduct: true,
-                        image:
-                          "https://i.ibb.co/NrS4tp0/image-removebg-preview.png",
-                      },
-                      {
-                        isSingleProduct: true,
-                        image:
-                          "https://i.ibb.co/NrS4tp0/image-removebg-preview.png",
-                      },
-                    ]}
-                  />
-                </Thumbnail>
-                <div className="col-md-8">
-                  <div className="ps-3 pe-3 pt-2 pb-2">
-                    <h5 className="mb-3 mt-3">Sản phẩm 1</h5>
-                    <p className="mb-2 mt-2">Hãng 1</p>
-                    <p className="mb-2 mt-2">Số lượng: 10</p>
-                    <p className="mb-2 mt-2">Price : 100.000 đ</p>
-                    <button
-                      className="btn btn-danger mt-3 mb-3"
-                      // onClick={() => removeCartItem(p._id)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              </ItemContainer>
-            </div>
-          </div>
-          <Right className="col-md-4">
-            <UserInfoContainer className="bg-light border-0 rounded-2 shadow p-3 position-fixed">
-              <div className=" text-center">
-                <h2>Thông tin thanh toán</h2>
-                <p>Tổng | Địa chỉ giao hàng | Thanh toán</p>
-              </div>
-              <hr />
-              <div className="p-2">
-                {auth?.user?.address ? (
-                  <>
-                    <div className="mb-3">
-                      <h5>
-                        Khách hàng:{" "}
-                        <span>
-                          {auth?.user?.fname} {auth?.user?.lname}
-                        </span>
-                      </h5>
-                      <h5>
-                        Địa chỉ giao hàng: {auth?.user?.address.street},{" "}
-                        {auth?.user?.address.district},{" "}
-                        {auth?.user?.address.city},{" "}
-                        {auth?.user?.address.country}
-                      </h5>
-                      {/* <h4>Total : {totalPrice()} </h4> */}
-                      <h5>Tổng tiền : 0 </h5>
-                      <button
-                        className="btn btn-success"
-                        onClick={() =>
-                          navigate(`/profile/update/${auth.user._id}`)
-                        }
-                      >
-                        Thanh toán
-                      </button>
-                    </div>
-                  </>
+      <ErrorDiv>
+        {error && toast.error(`${error.response.data.message}`)}
+      </ErrorDiv>
+      <Container className="container p-4">
+        {loading ? (
+          <Loading className="text-center">Loading...</Loading>
+        ) : (
+          <Row className="row mt-5 mb-5">
+            <Left className="col-md-8">
+              <Title className="mb-3 p-1">
+                <BackButton
+                  className="btn btn-dark text-warning"
+                  onClick={() => navigate(-1)}
+                >
+                  <ChevronLeft />
+                  Trở về
+                </BackButton>
+                <TitleName>Giỏ hàng</TitleName>
+              </Title>
+              <CartContainer>
+                {data.cart && data.cart.items.length > 0 ? (
+                  data?.cart?.items?.map((cartItem, index) => (
+                    <CartItem
+                      key={index}
+                      data={cartItem}
+                      index={index}
+                      onlyRead={false}
+                    />
+                  ))
                 ) : (
-                  <div className="mb-3">
-                    <button
-                      className="btn btn-outline-warning"
-                      onClick={() =>
-                        navigate(`/profile/update/${auth.user._id}`)
-                      }
-                    >
-                      Thêm địa chỉ giao hàng
-                    </button>
-                  </div>
+                  <NotFound>Không có sản phẩm nào trong giỏ hàng</NotFound>
                 )}
-              </div>
-            </UserInfoContainer>
-          </Right>
-        </div>
-      </div>
+              </CartContainer>
+            </Left>
+            <Right className="col-md-4">
+              <PaymentContainer className="bg-light border-0 rounded-2 shadow p-3 position-fixed mt-5">
+                <RightTitleWrapper className=" text-center">
+                  <RightTitle>
+                    Tổng tiền tạm tính:{" "}
+                    <Money className="text-secondary">
+                      {parseFloat(total).toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </Money>
+                  </RightTitle>
+                </RightTitleWrapper>
+                <Line />
+                <ButtonContainer className="p-2">
+                  <ButtonGroup className="mb-3">
+                    <Button
+                      className="btn btn-success w-100 mb-2 mt-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#OrderModal"
+                      disabled={!(data.cart && data.cart.items.length > 0)}
+                    >
+                      {!loading ? "Thanh toán" : "Đang tải..."}
+                    </Button>
+                    <Button
+                      className="btn btn-outline-success w-100 mb-2 mt-2"
+                      onClick={() => navigate(`/shop`)}
+                    >
+                      Chọn thêm sản phẩm khác
+                    </Button>
+                  </ButtonGroup>
+                </ButtonContainer>
+              </PaymentContainer>
+            </Right>
+          </Row>
+        )}
+        {data.cart &&
+          data.cart.items.map((cartItem, index) => (
+            <Modal
+              key={index}
+              data={cartItem}
+              index={index}
+              cart={data.cart._id}
+            />
+          ))}
+        {data.cart && (
+          <OrderModal customer={data.cart.customer} cart={data.cart} />
+        )}
+      </Container>
     </Layout>
   );
 };

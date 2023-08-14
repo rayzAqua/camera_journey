@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { styled } from "styled-components";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth.js";
 import useFetch from "../../hooks/useFetch.js";
 import Layout from "../../components/Layout/Layout.js";
 import Slider from "../../components/Slider/Slider.js";
-import { Add, Remove } from "@material-ui/icons";
+import { Add, ChevronLeft, Remove } from "@material-ui/icons";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const Container = styled.div`
   box-shadow: 0px 0px 4px 0.5px rgba(0, 0, 0, 0.2);
@@ -140,16 +141,45 @@ const Loading = styled.h4`
   letter-spacing: 2px;
 `;
 
-const SingleProduct = () => {
-  const location = useLocation();
-  const path = location.pathname.split("/")[1];
-  const productid = location.pathname.split("/")[2];
-  console.log(path, productid);
-  const { data, loading, error } = useFetch(`/product/${productid}`);
+const TitleSpan = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 
-  const sliderData = data?.product?.product_thumbnails?.map((image) => {
-    return { isSingle: true, image: image };
-  });
+const BackButton = styled.p`
+  position: absolute;
+  text-align: left;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  &:hover {
+    color: gray;
+    cursor: pointer;
+  }
+`;
+
+const TitleName = styled.h4`
+  text-align: center;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin: 0 auto;
+`;
+
+const SingleProduct = () => {
+  // Get token from context
+  const [auth, setAuth] = useAuthContext();
+
+  const location = useLocation();
+  const productid = location.pathname.split("/")[2];
+
+  const { data, loading, error } = useFetch(`/product/${productid}`);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const price = parseFloat(data?.product?.price).toLocaleString("vi-VN", {
     style: "currency",
@@ -157,12 +187,72 @@ const SingleProduct = () => {
   });
 
   const [qty, setQty] = useState(1);
-
   const handlePlusQty = () => {
-    if (qty >= data.product.quantity) {
-      toast.warn(`Sản phẩm hiện chỉ còn ${qty} sản phẩm`);
-    } else {
-      setQty(qty + 1);
+    if (qty >= 10) {
+      toast.warning("Số lượng sản phẩm đạt giới hạn");
+      return;
+    }
+    setQty(qty + 1);
+  };
+  const handleMinusQty = () => {
+    qty > 0 && setQty(qty - 1);
+  };
+
+  const cartItem = { product: data?.product?._id, quantity: qty };
+
+  const handleAddCart = async () => {
+    try {
+      // Check user login
+      if (!auth.user) {
+        toast.info("Bạn cần đăng nhập để tiếp tục mua hàng");
+        setTimeout(() => {
+          navigate(`/login`);
+        }, 1500);
+        return;
+      }
+
+      // If have login
+      setIsLoading(true);
+      const res = await axios.post(`/cart/${auth.user._id}/`, cartItem, {
+        headers: {
+          Authorization: `${auth.token}`,
+        },
+      });
+      if (res && res.data.success) {
+        toast.success(`${res.data.message}`);
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        console.log(`${res.data.message}`);
+        const update_cart = await axios.put(
+          `/cart/${auth.user._id}/${res.data.cart._id}`,
+          cartItem,
+          {
+            headers: {
+              Authorization: `${auth.token}`,
+            },
+          }
+        );
+        if (update_cart && update_cart.data.success) {
+          toast.success(`${update_cart.data.message}`);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          toast.warning(`${update_cart.data.message}`);
+        }
+      }
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.message);
+      } else if (error.response && error.response.status === 500) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Có gì đó không đúng");
+      }
     }
   };
 
@@ -174,10 +264,23 @@ const SingleProduct = () => {
         </Loading>
       ) : (
         <Container className="container p-4 mt-5 mb-5 rounded-2">
+          <TitleSpan className="mb-3 p-1">
+            <BackButton
+              className="btn btn-dark text-warning"
+              onClick={() => navigate(-1)}
+            >
+              <ChevronLeft />
+              Trở về
+            </BackButton>
+            <TitleName>Chi tiết sản phẩm</TitleName>
+          </TitleSpan>
           <Row className="row">
             <SliderContainer className="col-lg-7">
               <SliderWrapper className="bg-secondary-subtle rounded-2">
-                <Slider data={sliderData}></Slider>
+                <Slider
+                  data={data?.product?.product_thumbnails}
+                  isSingle={true}
+                ></Slider>
               </SliderWrapper>
             </SliderContainer>
             <DetailContainer className="col-lg-5">
@@ -223,10 +326,9 @@ const SingleProduct = () => {
                         Object.keys(data.product.details).map((item) => (
                           <DetailItem key={item} className="mt-1">
                             <Capitalize className="text-danger">
-                              {item}:
+                              {item}:{" "}
                             </Capitalize>
                             <Capitalize>
-                              {" "}
                               {data.product.details[item]}
                             </Capitalize>
                           </DetailItem>
@@ -237,7 +339,7 @@ const SingleProduct = () => {
                 <ButtonContainer className="mt-5 mb-2">
                   <QuantityGroup>
                     <ButtonWrapper>
-                      <Minus onClick={() => qty > 0 && setQty(qty - 1)}>
+                      <Minus onClick={handleMinusQty}>
                         <Remove />
                       </Minus>
                       <Num>{qty >= 1 && qty <= 9 ? `0${qty}` : qty}</Num>
@@ -248,10 +350,10 @@ const SingleProduct = () => {
                   </QuantityGroup>
 
                   <CustomeNavLink
-                    to="/shop"
                     className="btn btn-dark border-0 rounded-0 mt-3"
+                    onClick={handleAddCart}
                   >
-                    Thêm vào giỏ hàng
+                    {!isLoading ? "Thêm vào giỏ hàng" : "Đang tải"}
                   </CustomeNavLink>
                 </ButtonContainer>
               </Wrapper>

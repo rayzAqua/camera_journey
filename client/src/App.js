@@ -16,6 +16,7 @@ import UpdateCustomer from "./pages/Update/UpdateCustomer.js";
 import PersonalInfo from "./pages/Single/SingleCustomer.js";
 import ChangePassword from "./pages/Auth/ChangePassword.js";
 import Search from "./pages/Search/Search.js";
+import Brand from "./pages/Brand/Brand.js";
 
 function App() {
   const ProtectedRoute = ({ children }) => {
@@ -36,11 +37,18 @@ function App() {
         <Route path="login" element={<Login />}></Route>
         <Route path="register" element={<Register />}></Route>
         <Route path="forgotpassword" element={<ConfirmEmail />}></Route>
-
+        {/* Search route */}
         <Route path="search" element={<Search />}></Route>
-
+        {/* Profile route */}
         <Route path="profile">
-          <Route index element={<PageNotFound />}></Route>
+          <Route
+            index
+            element={
+              <ProtectedRoute>
+                <PageNotFound />
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path=":customerid"
             element={
@@ -66,9 +74,16 @@ function App() {
             }
           />
         </Route>
-
+        {/* Order route */}
         <Route path="order">
-          <Route index element={<PageNotFound />}></Route>
+          <Route
+            index
+            element={
+              <ProtectedRoute>
+                <PageNotFound />
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path=":customerid"
             element={
@@ -77,23 +92,27 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="detail/:orderid"
-            element={
-              <ProtectedRoute>
-                <OrderHistory />
-              </ProtectedRoute>
-            }
-          />
         </Route>
-
+        {/* Category route */}
         <Route path="category">
           <Route index element={<PageNotFound />} />
           <Route path=":categoryid" element={<Category />}></Route>
         </Route>
-
-        <Route path="cart">
+        {/* Brand route */}
+        <Route path="brand">
           <Route index element={<PageNotFound />} />
+          <Route path=":brand" element={<Brand />}></Route>
+        </Route>
+        {/* Cart route */}
+        <Route path="cart">
+          <Route
+            index
+            element={
+              <ProtectedRoute>
+                <PageNotFound />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path=":customerid"
             element={
@@ -103,12 +122,12 @@ function App() {
             }
           ></Route>
         </Route>
-
+        {/* Shop route */}
         <Route path="shop">
           <Route index element={<Shopping />}></Route>
           <Route path=":productid" element={<SingleProduct />} />
         </Route>
-
+        {/* Not found route */}
         <Route path="/*" element={<PageNotFound />}></Route>
       </Route>
     </Routes>

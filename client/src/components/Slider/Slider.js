@@ -52,7 +52,7 @@ const NextButton = styled.button`
 
 const Span = styled.span``;
 
-const Slider = ({ data }) => {
+const Slider = ({ data, isSingle }) => {
   return (
     <Container
       id="carouselExampleCaptions"
@@ -78,9 +78,9 @@ const Slider = ({ data }) => {
             data-bs-interval="3000"
           >
             <Image
-              src={item.image}
+              src={item.image ? item.image : item}
               className={
-                !item.isSingle
+                !isSingle
                   ? "d-block w-100 h-100 text-center mx-auto"
                   : "d-block w-50 h-75 text-center mx-auto"
               }

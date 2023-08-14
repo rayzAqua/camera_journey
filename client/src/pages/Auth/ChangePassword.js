@@ -150,7 +150,7 @@ const ChangePassword = () => {
               <hr className="divider" />
               <CustomeDiv className="btn-group-sm text-end">
                 <Link
-                  to={`/profile/${customerid}`}
+                  onClick={() => navigate(-1)}
                   className="btn btn-secondary col-12 col-sm-12 col-md-3 col-lg-3 ms-auto p-2 mt-2"
                 >
                   Huỷ

@@ -20,42 +20,55 @@ const ListItem = styled.div`
 
 const CustomeNavLink = styled(NavLink)``;
 
+const TitleName = styled.span`
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+  margin-left: 5px;
+`;
+
+const ItemName = styled.span`
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
+`;
+
 const CustomerSideBar = ({ customeid }) => {
   return (
-    <Container className="h-100 list-group rounded-2">
-      <Title className="d-none d-lg-block list-group-item text-center text-bg-warning border-0 rounded-bottom-0">
-        Chức năng
+    <Container className="list-group rounded-2">
+      <Title className="d-none d-lg-block list-group-item text-center text-warning bg-dark border-0 rounded-bottom-0">
+        <TitleName>Chức năng</TitleName>
       </Title>
-      <ListItem className="d-flex flex-row d-lg-block list-group rounded-top-0 rounded-bottom-0 text-center">
+      <ListItem className="d-flex flex-row d-lg-block list-group rounded-top-0 rounded-bottom-2 text-center">
         <CustomeNavLink
           to={`/profile/${customeid}`}
           className="list-group-item list-group-item-action border-0"
         >
-          Thông tin cá nhân
+          <ItemName>Thông tin cá nhân</ItemName>
         </CustomeNavLink>
         <CustomeNavLink
           to={`/profile/update/${customeid}`}
           className="list-group-item list-group-item-action border-0"
         >
-          Cập nhập thông tin
+          <ItemName>Cập nhập thông tin</ItemName>
         </CustomeNavLink>
         <CustomeNavLink
           to={`/profile/change-password/${customeid}`}
           className="list-group-item list-group-item-action border-0"
         >
-          Thay đổi mật khẩu
+          <ItemName>Thay đổi mật khẩu</ItemName>
         </CustomeNavLink>
         <CustomeNavLink
           to={`/order/${customeid}`}
           className="list-group-item list-group-item-action border-0"
         >
-          Lịch sử đặt hàng
+          <ItemName>Lịch sử đặt hàng</ItemName>
         </CustomeNavLink>
         <CustomeNavLink
           to={`/`}
           className="list-group-item list-group-item-action border-0"
         >
-          Trở về trang chủ
+          <ItemName>Trang chủ</ItemName>
         </CustomeNavLink>
       </ListItem>
     </Container>

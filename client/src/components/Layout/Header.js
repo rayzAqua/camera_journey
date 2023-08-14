@@ -1,12 +1,13 @@
 import { Badge } from "@material-ui/core";
 import { Search } from "@material-ui/icons";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/auth";
 import { styled } from "styled-components";
 import { useSearchContext } from "../../context/search";
 import axios from "axios";
 import { toast } from "react-toastify";
+import useFetch from "../../hooks/useFetch";
 
 const SearchBar = styled.form``;
 
@@ -29,6 +30,28 @@ const Header = () => {
   const [auth, setAuth] = useAuthContext();
   const [input, setInput] = useSearchContext();
   const navigate = useNavigate();
+
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`/cart/${auth.user._id}`, {
+          headers: {
+            Authorization: `${auth.token}`,
+          },
+        });
+        setData(res.data);
+      } catch (err) {
+        setError(err);
+      }
+      setLoading(false);
+    };
+    fetchData();
+  }, [auth.user]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -66,6 +89,11 @@ const Header = () => {
   return (
     <>
       <nav className="navbar navbar-expand-lg sticky-top navbar-dark bg-black bg-gradient">
+        <div>
+          {error.response
+            ? toast.error(`${error.response.data.message}`)
+            : console.log("No User found")}
+        </div>
         <div className="container text-center">
           <Link to="/" className="navbar-brand text-wrap">
             <img
@@ -130,18 +158,7 @@ const Header = () => {
                   Mua hàng
                 </NavLink>
               </li>
-              <li className="nav-item ms-auto me-auto">
-                <NavLink to={`/cart/${auth?.user?._id}}`} className="nav-link">
-                  <Badge
-                    badgeContent={100}
-                    max={99}
-                    color="secondary"
-                    overlap="rectangular"
-                  >
-                    Giỏ hàng
-                  </Badge>
-                </NavLink>
-              </li>
+
               {!auth.user ? (
                 <li className="nav-item ms-auto me-auto">
                   <NavLink to="/login" className="nav-link">
@@ -149,43 +166,60 @@ const Header = () => {
                   </NavLink>
                 </li>
               ) : (
-                <li className="dropdown nav-item ms-auto me-auto">
-                  <DropDown
-                    className="btn text-warning border-0 dropdown-toggle"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    {auth.user.fname} {auth.user.lname}
-                  </DropDown>
-                  <ul className="dropdown-menu w-100">
-                    <DropDownItem className="nav-item ms-auto me-auto">
-                      <NavLink
-                        to={`/profile/${auth.user._id}`}
-                        className="nav-link text-black"
+                <>
+                  <li className="nav-item ms-auto me-auto">
+                    <NavLink
+                      to={`/cart/${auth?.user?._id}}`}
+                      className="nav-link"
+                    >
+                      <Badge
+                        badgeContent={loading ? 0 : data?.cart?.items?.length}
+                        max={99}
+                        color="secondary"
+                        overlap="rectangular"
                       >
-                        Thông tin cá nhân
-                      </NavLink>
-                    </DropDownItem>
-                    <DropDownItem className="nav-item ms-auto me-auto">
-                      <NavLink
-                        to={`/order/${auth.user._id}`}
-                        className="nav-link text-black"
-                      >
-                        Lịch sử đặt
-                      </NavLink>
-                    </DropDownItem>
-                    <DropDownItem className="nav-item ms-auto me-auto">
-                      <NavLink
-                        onClick={handleLogout}
-                        to="/"
-                        className="nav-link text-black"
-                      >
-                        Đăng xuất
-                      </NavLink>
-                    </DropDownItem>
-                  </ul>
-                </li>
+                        Giỏ hàng
+                      </Badge>
+                    </NavLink>
+                  </li>
+                  <li className="dropdown nav-item ms-auto me-auto">
+                    <DropDown
+                      className="btn text-warning border-0 dropdown-toggle"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      {auth.user.fname} {auth.user.lname}
+                    </DropDown>
+                    <ul className="dropdown-menu w-100">
+                      <DropDownItem className="nav-item ms-auto me-auto">
+                        <NavLink
+                          to={`/profile/${auth.user._id}`}
+                          className="nav-link text-black"
+                        >
+                          Thông tin cá nhân
+                        </NavLink>
+                      </DropDownItem>
+                      <DropDownItem className="nav-item ms-auto me-auto">
+                        <NavLink
+                          to={`/order/${auth.user._id}`}
+                          className="nav-link text-black"
+                        >
+                          Lịch sử đặt
+                        </NavLink>
+                      </DropDownItem>
+                      <DropDownItem className="nav-item ms-auto me-auto">
+                        <NavLink
+                          onClick={handleLogout}
+                          to="/"
+                          className="nav-link text-black"
+                        >
+                          Đăng xuất
+                        </NavLink>
+                      </DropDownItem>
+                    </ul>
+                  </li>
+                </>
               )}
             </ul>
           </div>

@@ -7,6 +7,7 @@ import {
   newPriceHistory,
   deleteProduct,
   deletePriceHistory,
+  caculateNewQuantityFromInc,
 } from "../utils/productHelpers.js";
 import { createError } from "../utils/error.js";
 
@@ -98,9 +99,23 @@ ProductSchema.post("save", async function (results) {
 
 // Update quantity before complete update session
 ProductSchema.pre("findOneAndUpdate", async function () {
-  const new_quantity = String(this.getUpdate().$set.quantity);
-  if (new_quantity) {
-    this.getUpdate().$set.stocking = new_quantity !== "0";
+  let new_quantity;
+
+  if (this.getUpdate().$set.quantity !== undefined) {
+    new_quantity = this.getUpdate().$set.quantity;
+  } else if (this.getUpdate().$inc.quantity !== undefined) {
+    new_quantity = await caculateNewQuantityFromInc(
+      this.getUpdate().$inc.quantity,
+      this.getFilter()._id
+    );
+  }
+
+  console.log(new_quantity);
+
+  if (new_quantity !== undefined) {
+    console.log("okkkkk");
+    this._update.$set.stocking = String(new_quantity) !== "0";
+    console.log(this._update.$set);
   }
 });
 
@@ -113,23 +128,30 @@ ProductSchema.post("findOneAndUpdate", async function (results) {
     // Get new category and brand from result of update
     const new_category = results.product_category;
     const new_brand = results.product_brand;
+    console.log(new_category);
+    console.log(new_brand);
 
     // Get old category and brand from options of update
     const old_category = this.getOptions().old_category;
     const old_brand = this.getOptions().old_brand;
+    console.log(old_category);
+    console.log(old_brand);
 
     // If is category update update product id to new and remove from old
     if (
-      new_category &&
+      new_category.length !== 0 &&
+      old_category.length !== 0 &&
       (!new_category.every((item, index) => item === old_category[index]) ||
         new_category.length !== old_category.length)
     ) {
+      console.log("Category");
       await deleteProductFromCategory(old_category, productId);
       await insertProductToCategory(new_category, productId);
     }
 
     // If is brand update, update product id to new and remove from old
-    if (new_brand && new_brand !== old_brand) {
+    if (new_brand && old_brand && new_brand !== old_brand) {
+      console.log("Brand");
       await deleteProductFromBrand(old_brand, productId);
       await insertProductToBrand(new_brand, productId);
     }

@@ -32,7 +32,7 @@ export const newBrand = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Create new brand successfully",
-      data: savedBrand,
+      brand: savedBrand,
     });
   } catch (err) {
     next(err);
@@ -78,7 +78,7 @@ export const updateBrand = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Update brand successfully",
-      data: updatedBrand,
+      brand: updatedBrand,
     });
   } catch (err) {
     next(err);
@@ -92,7 +92,15 @@ export const getBrand = async (req, res, next) => {
 
     const brand = await Brand.findById(brandId).populate({
       path: "products",
-      select: ["_id", "product_name", "product_brand", "product_category"],
+      select: [
+        "_id",
+        "product_name",
+        "product_thumbnails",
+        "product_brand",
+        "product_category",
+        "price",
+        "stocking",
+      ],
       match: { status: "active" },
     });
     if (!brand) {
@@ -102,7 +110,7 @@ export const getBrand = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Get brand successfully",
-      data: brand,
+      brand: brand,
     });
   } catch (err) {
     next(err);
@@ -124,7 +132,7 @@ export const getBrands = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Get all brand successfully",
-      data: brands,
+      brand: brands,
     });
   } catch (err) {
     next(err);

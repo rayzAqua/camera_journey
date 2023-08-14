@@ -29,7 +29,7 @@ export const createCart = async (req, res, next) => {
       return res.status(200).json({
         success: false,
         message: "Khách hàng đã có giỏ hàng",
-        cart: isCartExisted,
+        cart: isCartExisted[0],
       });
     }
 
@@ -85,7 +85,7 @@ export const updateCart = async (req, res, next) => {
     if (!req.body.product || req.body.product === "") {
       throw createError(400, "Cần thông tin sản phẩm");
     }
-    if (!req.body.quantity || req.body.quantity === "") {
+    if (!String(req.body.quantity) || req.body.quantity === "") {
       throw createError(400, "Cần số lượng sản phẩm");
     }
 
@@ -122,28 +122,29 @@ export const updateCart = async (req, res, next) => {
     // Nếu product chưa tồn tại thì thêm mới.
     const cart_quantity = req.body.quantity;
 
-    const checkProductExistedInCart = cart.items.some((item, index) =>
-      item.product_id.equals(product._id)
+    const checkProductExistedInCart = cart.items.some(
+      (item, index) => item.product_id.toString() === product._id.toString()
     );
 
     let updateData;
     if (checkProductExistedInCart) {
       // Same product -> update quantity
       updateData = await Cart.findOneAndUpdate(
-        { "items.product_id": product._id },
+        { _id: cart._id, "items.product_id": product._id },
         { $inc: { "items.$.quantity": cart_quantity } },
         { new: true }
       );
 
-      // If quantity after update === 0 -> remove it
+      // If quantity after update <= 0 -> remove it
       if (updateData && updateData.items.some((item) => item.quantity <= 0)) {
         updateData = await Cart.findOneAndUpdate(
-          { "items.product_id": product._id },
+          { _id: cart._id, "items.product_id": product._id },
           { $pull: { items: { product_id: product._id } } },
           { new: true }
         );
       }
     } else {
+      // Add new product to cart
       if (cart_quantity <= 0) {
         throw createError(400, "Số lượng phải lớn hơn 0");
       }
@@ -258,7 +259,14 @@ export const getCart = async (req, res, next) => {
       select: ["fname", "lname", "email", "address", "phone"],
     });
     if (!cart) {
-      throw createError(400, "Không tìm thấy giỏ hàng");
+      return res
+        .status(200)
+        .json({ success: false, message: "Không tìm thấy giỏ hàng" });
+    }
+    if (cart.items.length === 0) {
+      return res
+        .status(200)
+        .json({ success: false, message: "Giỏ hàng trống" });
     }
 
     const { __v, ...others } = cart._doc;

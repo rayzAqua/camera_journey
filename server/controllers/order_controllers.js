@@ -25,6 +25,9 @@ export const createOrder = async (req, res, next) => {
     if (!cart) {
       throw createError(400, "Không tìm thấy giỏ hàng");
     }
+    if (cart.items.length === 0) {
+      throw createError(400, "Giỏ hàng rỗng");
+    }
 
     // Process quantity
     await Promise.all(
@@ -41,7 +44,7 @@ export const createOrder = async (req, res, next) => {
         if (productInCart.quantity < item.quantity) {
           throw createError(
             400,
-            `Số lượng sản phẩm ${productInCart.product_name} không đủ. Hiện chỉ còn ${productInCart.quantity}`
+            `Số lượng sản phẩm ${productInCart.product_name} không đủ`
           );
         }
       })
@@ -82,10 +85,10 @@ export const createOrder = async (req, res, next) => {
     await Promise.all(
       cart.items.map(async (item) => {
         const { product_id, quantity } = item;
-        // Assuming the Product model has a field named "quantity"
-        await Product.updateOne(
+        await Product.findOneAndUpdate(
           { _id: product_id },
-          { $inc: { quantity: -quantity } }
+          { $inc: { quantity: -quantity } },
+          { new: true, old_category: [], old_brand: null }
         );
       })
     );
@@ -315,9 +318,14 @@ export const getCustomerOrders = async (req, res, next) => {
         "createdAt",
         "updatedAt",
       ],
+      match: { status: { $ne: "pending" } },
     });
     if (customerOrders.orders.length === 0) {
-      throw createError(400, "Không tìm thấy đơn đặt nào cả");
+      return res.status(200).json({
+        success: false,
+        message: "Không tìm thấy đơn đặt nào cả",
+        order: [],
+      });
     }
 
     // Định dạng lại dữ liệu customer
@@ -328,8 +336,6 @@ export const getCustomerOrders = async (req, res, next) => {
       image,
       status,
       verified,
-      createdAt,
-      updatedAt,
       __v,
       birthDate,
       address,
@@ -351,8 +357,7 @@ export const getCustomerOrders = async (req, res, next) => {
         }
         // Duyệt qua từng item trong giỏ hàng và định dạng lại dữ liệu.
         const cartDetails = orderDetails.cart.items.map((item) => {
-          const { _id, product_thumbnails, product_brand, ...others } =
-            item._doc;
+          const { _id, ...others } = item._doc;
           return others;
         });
         // Detruction dữ liệu của mỗi order và tổ chức lại.

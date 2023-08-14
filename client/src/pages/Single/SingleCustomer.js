@@ -48,6 +48,15 @@ const InfoItem = styled.div`
   margin-bottom: 8px;
 `;
 
+const Loading = styled.h4`
+  text-align: start;
+  margin-bottom: 35px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+`;
+
 const PersonalInfo = ({ user }) => {
   const [auth, setAuth] = useAuthContext();
 
@@ -74,7 +83,7 @@ const PersonalInfo = ({ user }) => {
           </div>
           <div className="col-lg-9">
             {loading ? (
-              <h1 className="text-center">Loading...</h1>
+              <Loading className="text-center">Loading...</Loading>
             ) : (
               data.customer && (
                 <CustomerContainer className="bg-light border border-white rounded-3 p-5 shadow">

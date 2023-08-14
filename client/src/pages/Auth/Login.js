@@ -68,8 +68,8 @@ const Login = () => {
           token: token,
         });
         setTimeout(() => {
-          navigate("/");
-        }, 2000);
+          navigate(-1);
+        }, 1500);
       } else {
         toast.warn(res.data.message);
       }

@@ -11,6 +11,7 @@ import useFetch from "../../hooks/useFetch.js";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { responsive, promoData, sliderData } from "../../utils/fakeData.js";
+import BrandSideBar from "../../components/Sidebar/BrandSideBar.js";
 
 const Container = styled.div``;
 
@@ -31,10 +32,20 @@ const SidebarContainer = styled.div`
   max-height: 420px;
 `;
 
+const DisplaySideBar = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  margin: 0;
+`;
+
 const SliderContainer = styled.div`
   margin-top: 10px;
   margin-bottom: 10px;
 `;
+
+const WrapperBar = styled.div``;
 
 const PromoContainer = styled.div``;
 
@@ -57,10 +68,17 @@ const Home = () => {
           <>
             <Row className="row">
               <SidebarContainer className="d-none d-lg-block col-lg-4 col-xxl-2">
-                <Sidebar />
+                <DisplaySideBar>
+                  <WrapperBar className="">
+                    <Sidebar />
+                  </WrapperBar>
+                  <WrapperBar className="">
+                    <BrandSideBar />
+                  </WrapperBar>
+                </DisplaySideBar>
               </SidebarContainer>
               <SliderContainer className="col-lg-8 col-xxl-7">
-                <Slider data={sliderData} />
+                <Slider data={sliderData} isSingle={false} />
               </SliderContainer>
               <PromoContainer className="d-none d-xxl-block col-xxl-3">
                 {promoData.map((item, index) => (

@@ -20,19 +20,16 @@ export const responsive = {
 
 export const sliderData = [
   {
-    isSingle: false,
     title: "PTIT JOURNEY",
     desc: "SẢN PHẨM TỐT NHẤT DÀNH CHO BẠN",
     image: "https://i.ibb.co/1Z3zVCM/vuegroup.webp",
   },
   {
-    isSingle: false,
     title: "TRẢI NGHIỆM TUYỆT VỜI",
     desc: "Sản phẩm với độ phân giải cao",
     image: "https://i.ibb.co/q1VjyyJ/imresizer-1691494361686.jpg",
   },
   {
-    isSingle: false,
     title: "MẪU MÃ ĐA DẠNG",
     desc: "Hãy lựa chọn cho mình một sản phẩm",
     image: "https://i.ibb.co/L87xxhP/p-F3-FGxk-ABbczafnjoq-JHv-D.jpg",

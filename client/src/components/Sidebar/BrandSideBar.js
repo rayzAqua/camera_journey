@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { styled } from "styled-components";
 import useFetch from "../../hooks/useFetch";
-import { Filter1 } from "@material-ui/icons";
+import { Filter1, Filter2 } from "@material-ui/icons";
 
 const Container = styled.div`
   box-shadow: 0px 0px 4px 0.5px rgba(0, 0, 0, 0.1);
@@ -28,8 +28,6 @@ const ListItem = styled.div`
   }
 `;
 
-const CustomeNavLink = styled(NavLink)``;
-
 const FilterName = styled.span`
   text-transform: uppercase;
   font-weight: 500;
@@ -43,26 +41,28 @@ const BrandName = styled.span`
   letter-spacing: 1px;
 `;
 
-const Sidebar = () => {
-  const { data, loading, error } = useFetch(`/category`);
+const CustomeNavLink = styled(NavLink)``;
+
+const BrandSideBar = () => {
+  const { data, loading, error } = useFetch(`/brand`);
 
   return (
     <Container className="list-group rounded-2">
-      <Title className="d-none d-lg-block list-group-item text-center text-warning bg-dark border-0 rounded-bottom-0">
-        <Filter1 />
-        <FilterName>Danh mục</FilterName>
+      <Title className="d-none d-lg-block list-group-item text-center bg-dark text-warning border-0 rounded-bottom-0">
+        <Filter2 />
+        <FilterName>Thương hiệu</FilterName>
       </Title>
       <ListItem className="d-flex flex-row d-lg-block list-group rounded-top-0 rounded-bottom-2 text-center">
         {loading ? (
           <Loading className="mt-5 mb-5">Loading...</Loading>
         ) : (
-          data?.category?.map((item) => (
+          data?.brand?.map((item) => (
             <CustomeNavLink
               key={item._id}
-              to={`/category/${item._id}`}
+              to={`/brand/${item._id}`}
               className="list-group-item list-group-item-action border-0"
             >
-              <BrandName>{item.category_name}</BrandName>
+              <BrandName>{item.brand_name}</BrandName>
             </CustomeNavLink>
           ))
         )}
@@ -71,4 +71,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default BrandSideBar;

@@ -61,6 +61,15 @@ const UpdateButton = styled.div`
   margin: 0 auto;
 `;
 
+const Loading = styled.h4`
+  text-align: start;
+  margin-bottom: 35px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+`;
+
 const UpdateCustomer = () => {
   // Get token from context
   const [auth, setAuth] = useAuthContext();
@@ -202,8 +211,8 @@ const UpdateCustomer = () => {
           user: res.data.customer,
         });
         setTimeout(() => {
-          navigate(`/profile/${customerid}`);
-        }, 2000);
+          navigate(-1);
+        }, 1500);
       } else {
         toast.warn(res.data.message);
       }
@@ -231,7 +240,7 @@ const UpdateCustomer = () => {
           </div>
           <div className="col-lg-9">
             {loading ? (
-              <h1 className="text-center">Loading...</h1>
+              <Loading className="text-center">Loading...</Loading>
             ) : (
               <CustomeForm className="text-center bg-light border border-0 rounded-3 p-5 shadow">
                 <Title>Cập nhập thông tin</Title>

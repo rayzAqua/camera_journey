@@ -6,6 +6,7 @@ import Product from "../../components/Product/Product.js";
 import { useLocation } from "react-router-dom";
 import useFetch from "../../hooks/useFetch.js";
 import { Search } from "@material-ui/icons";
+import BrandSideBar from "../../components/Sidebar/BrandSideBar.js";
 
 const Container = styled.div``;
 
@@ -33,7 +34,7 @@ const Loading = styled.h4`
   letter-spacing: 2px;
 `;
 
-const CategoryName = styled.span`
+const BrandName = styled.span`
   text-transform: uppercase;
   font-weight: 500;
   letter-spacing: 2px;
@@ -45,11 +46,11 @@ const NotFound = styled.div`
   font-weight: 500;
 `;
 
-const Category = () => {
+const Brand = () => {
   const location = useLocation();
-  const categoryid = location.pathname.split("/")[2];
+  const brandid = location.pathname.split("/")[2];
 
-  const { data, loading, error } = useFetch(`/category/${categoryid}`);
+  const { data, loading, error } = useFetch(`/brand/${brandid}`);
 
   return (
     <Layout>
@@ -59,18 +60,18 @@ const Category = () => {
         ) : (
           <Row className="row">
             <SidebarContainer className="col-lg-3">
-              <Sidebar />
+              <BrandSideBar />
             </SidebarContainer>
             <ProductContainer className="col-lg-9">
               <Title className="p-2 mt-3">
                 <Search style={{ fontSize: "25px", margin: 0 }} />
-                <CategoryName>
-                  {`Tìm thấy ${data?.category?.products?.length} sản phẩm`}
-                </CategoryName>
+                <BrandName>
+                  {`Tìm thấy ${data?.brand?.products?.length} sản phẩm`}
+                </BrandName>
               </Title>
               <ListProduct className="row row-cols-2 row-cols-lg-4 g-2">
-                {data?.category?.products?.length !== 0 ? (
-                  data?.category?.products?.map((item) => (
+                {data?.brand?.products?.length !== 0 ? (
+                  data?.brand?.products?.map((item) => (
                     <ListItem className="col">
                       <Product
                         key={item._id}
@@ -95,4 +96,4 @@ const Category = () => {
   );
 };
 
-export default Category;
+export default Brand;

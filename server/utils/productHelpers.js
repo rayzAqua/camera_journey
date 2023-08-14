@@ -56,3 +56,12 @@ export const deleteProductFromBrand = async function (brand, productId) {
     { $pull: { products: productId } }
   );
 };
+
+//Check new quantity is 0
+export const caculateNewQuantityFromInc = async function (
+  newQuantity,
+  productId
+) {
+  const product = await Product.findOne({ _id: productId });
+  return product.quantity + newQuantity;
+};
