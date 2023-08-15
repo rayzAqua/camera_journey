@@ -6,6 +6,7 @@ import Slider from "../Slider/Slider";
 import axios from "axios";
 import { useAuthContext } from "../../context/auth";
 import { useNavigate } from "react-router-dom";
+import useFetch from "../../hooks/useFetch";
 
 const Container = styled.div``;
 
@@ -88,12 +89,15 @@ const RemoveButton = styled.button``;
 
 const UpdateButton = styled.button``;
 
-const Modal = ({ data, index, cart }) => {
+const Modal = ({ product, index, cart }) => {
   const [auth, setAuth] = useAuthContext();
   const navigate = useNavigate();
 
   const [qty, setQty] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data, loading, error } = useFetch(`/product/${product.product_id}`);
+  console.log(data);
 
   const handleUpdate = async () => {
     try {
@@ -101,8 +105,8 @@ const Modal = ({ data, index, cart }) => {
       const res = await axios.put(
         `/cart/${auth.user._id}/${cart}`,
         {
-          product: data.product_id,
-          quantity: qty + 1 !== 0 ? qty - data.quantity : 0,
+          product: product.product_id,
+          quantity: qty + 1 !== 0 ? qty - product.quantity : 0,
         },
         {
           headers: {
@@ -139,7 +143,7 @@ const Modal = ({ data, index, cart }) => {
           Authorization: `${auth.token}`,
         },
         data: {
-          product: data.product_id,
+          product: product.product_id,
         },
       });
       if (res && res.data.success) {
@@ -188,15 +192,15 @@ const Modal = ({ data, index, cart }) => {
           <Body className="modal-body">
             <Padding className="ps-3 pe-3 pt-2 pb-2">
               <Thumbnail className="d-flex justify-content-center align-items-center">
-                <Slider data={data.product_thumbnails} isSingle={true} />
+                <Slider data={product.product_thumbnails} isSingle={true} />
               </Thumbnail>
               <ProductName className="mt-4 mb-4">
-                {data.product_name}
+                {product.product_name}
               </ProductName>
               <Brand className="mt-4 mb-4">
                 <NormalText>Thương hiệu: </NormalText>
                 <BrandName className="text-warning bg-dark bg-gradient p-2 rounded-1 ms-2">
-                  {data.product_brand}
+                  {product.product_brand}
                 </BrandName>
               </Brand>
               <QuantityGroup className="mt-4 mb-4">
@@ -207,7 +211,7 @@ const Modal = ({ data, index, cart }) => {
                         return;
                       }
                       if (qty === -1) {
-                        setQty(data.quantity - 1);
+                        setQty(product.quantity - 1);
                       } else {
                         setQty(qty - 1);
                       }
@@ -215,16 +219,25 @@ const Modal = ({ data, index, cart }) => {
                   >
                     <Remove />
                   </Minus>
-                  <Num>{qty === -1 ? data.quantity : qty}</Num>
+                  <Num>{qty === -1 ? product.quantity : qty}</Num>
                   <Plus
                     onClick={() => {
-                      if (qty >= 10) {
-                        toast.warning("Đã đạt giới hạn sản phẩm cho phép");
-                        return;
-                      }
                       if (qty === -1) {
-                        setQty(data.quantity + 1);
-                      } else {
+                        if (product.quantity + 1 > data.product.quantity) {
+                          setQty(product.quantity);
+                          toast.info(
+                            `Sản phầm này hiện chỉ còn ${data.product.quantity} sản phẩm`
+                          );
+                          return;
+                        }
+                        setQty(product.quantity + 1);
+                      } else if (qty >= 0) {
+                        if (qty >= data.product.quantity) {
+                          toast.info(
+                            `Sản phầm này hiện chỉ còn ${data.product.quantity} sản phẩm`
+                          );
+                          return;
+                        }
                         setQty(qty + 1);
                       }
                     }}
@@ -236,7 +249,7 @@ const Modal = ({ data, index, cart }) => {
               <Price className="mt-4 mb-4">
                 <NormalText>Giá: </NormalText>
                 <Money>
-                  {parseFloat(data.price).toLocaleString("vi-VN", {
+                  {parseFloat(product.price).toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
                   })}

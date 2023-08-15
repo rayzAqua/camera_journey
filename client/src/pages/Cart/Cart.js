@@ -180,7 +180,7 @@ const CartPage = () => {
           data.cart.items.map((cartItem, index) => (
             <Modal
               key={index}
-              data={cartItem}
+              product={cartItem}
               index={index}
               cart={data.cart._id}
             />

@@ -128,6 +128,21 @@ export const updateCart = async (req, res, next) => {
 
     let updateData;
     if (checkProductExistedInCart) {
+      // Check stocking
+      const productIsStocking = await Cart.findOne({
+        _id: cart._id,
+        "items.product_id": product._id,
+      });
+      console.log(productIsStocking);
+      if (
+        cart_quantity + productIsStocking.items[0].quantity >
+        product.quantity
+      ) {
+        throw createError(
+          400,
+          `Sản phẩm trong giỏ hàng đã có ${productIsStocking.items[0].quantity}. Sản phẩm hiện chỉ còn ${product.quantity} sản phẩm`
+        );
+      }
       // Same product -> update quantity
       updateData = await Cart.findOneAndUpdate(
         { _id: cart._id, "items.product_id": product._id },

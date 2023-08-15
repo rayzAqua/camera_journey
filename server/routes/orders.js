@@ -21,7 +21,7 @@ router.post("/:userid/", verifyToken, createOrder);
 router.put("/:userid/:orderid", verifyStaff, updateOrder);
 
 // GET ONE
-router.get("/:userid/id=:orderid", verifyToken, getOrder);
+router.get("/:userid/id=:orderid", verifyStaff, getOrder);
 
 // GET ALL
 router.get("/:userid/", verifyStaff, getOrders);

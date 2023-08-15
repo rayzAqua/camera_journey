@@ -11,6 +11,48 @@ export const createOrder = async (req, res, next) => {
     if (!req.body.cartId || req.body.cartId === "") {
       throw createError(400, "Cần thông tin giỏ hàng");
     }
+    if (!req.body.customer) {
+      throw createError(400, "Cần thông tin khách hàng");
+    }
+    if (!req.body.customer.fname || req.body.customer.fname === "") {
+      throw createError(400, "Cần thông tin họ khách hàng");
+    }
+    if (!req.body.customer.lname || req.body.customer.lname === "") {
+      throw createError(400, "Cần thông tin tên khách hàng");
+    }
+    if (!req.body.customer.email || req.body.customer.email === "") {
+      throw createError(400, "Cần thông tin email khách hàng");
+    }
+    if (!req.body.customer.phone || req.body.customer.phone === "") {
+      throw createError(400, "Cần thông tin số điện thoại khách hàng");
+    }
+    if (!req.body.shipping_address) {
+      throw createError(400, "Cần thông tin địa chỉ giao hàng");
+    }
+    if (
+      !req.body.shipping_address.street ||
+      req.body.shipping_address.street === ""
+    ) {
+      throw createError(400, "Cần thông tin đường khách hàng");
+    }
+    if (
+      !req.body.shipping_address.district ||
+      req.body.shipping_address.district === ""
+    ) {
+      throw createError(400, "Cần thông tin quận/huyện khách hàng");
+    }
+    if (
+      !req.body.shipping_address.city ||
+      req.body.shipping_address.city === ""
+    ) {
+      throw createError(400, "Cần thông tin tỉnh/thành khách hàng");
+    }
+    if (
+      !req.body.shipping_address.country ||
+      req.body.shipping_address.country === ""
+    ) {
+      throw createError(400, "Cần thông tin quốc gia khách hàng");
+    }
 
     // Check user
     const userId = req.params.userid;
@@ -51,24 +93,16 @@ export const createOrder = async (req, res, next) => {
     );
 
     // Save start
-    const customer = {
-      fname: user.fname,
-      lname: user.lname,
-      email: user.email,
-      phone: user.phone,
-    };
 
     // Total price
     const total = cart.items.reduce((accu, curr) => {
       return accu + curr.quantity * Number(curr.price);
     }, 0);
 
-    console.log(total);
-
     const newOrder = new Order({
-      customer: customer,
+      customer: req.body.customer,
       cart: cart._id,
-      shipping_address: user.address,
+      shipping_address: req.body.shipping_address,
       total: total,
     });
 
@@ -175,26 +209,13 @@ export const updateOrder = async (req, res, next) => {
 // GET ONE ORDER
 export const getOrder = async (req, res, next) => {
   try {
-    // Check role
-    const role = req.query.role;
-    if (!role || role === "") {
-      throw createError(400, "Cần thông tin chức danh người dùng");
-    }
-
     // Check user
     const userId = req.params.userid;
     let user;
-    if (role === "customer") {
-      user = await Customer.findById(userId).where({ status: "active" });
-      if (!user) {
-        throw createError(400, "Không tìm thấy khách hàng");
-      }
-    }
-    if (role === "staff") {
-      user = await User.findById(userId).where({ status: "active" });
-      if (!user) {
-        throw createError(400, "Không tìm thấy nhân viên");
-      }
+
+    user = await User.findById(userId).where({ status: "active" });
+    if (!user) {
+      throw createError(400, "Không tìm thấy nhân viên");
     }
 
     // Check order

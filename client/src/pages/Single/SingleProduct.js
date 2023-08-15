@@ -181,6 +181,8 @@ const SingleProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const [stocking, setStocking] = useState(false);
+
   const price = parseFloat(data?.product?.price).toLocaleString("vi-VN", {
     style: "currency",
     currency: "VND",
@@ -188,14 +190,24 @@ const SingleProduct = () => {
 
   const [qty, setQty] = useState(1);
   const handlePlusQty = () => {
-    if (qty >= 10) {
-      toast.warning("Số lượng sản phẩm đạt giới hạn");
+    if (qty >= data.product.quantity) {
+      toast.info(`Sản phẩm này hiện chỉ còn ${data.product.quantity} sản phẩm`);
+      setStocking(true);
       return;
+    } else {
+      setStocking(false);
     }
     setQty(qty + 1);
   };
   const handleMinusQty = () => {
-    qty > 0 && setQty(qty - 1);
+    if (qty - 1 <= 0) {
+      setQty(qty - 1);
+      setStocking(true);
+      return;
+    } else {
+      setStocking(false);
+    }
+    setQty(qty - 1);
   };
 
   const cartItem = { product: data?.product?._id, quantity: qty };
@@ -336,26 +348,37 @@ const SingleProduct = () => {
                     </Detail>
                   ))}
 
-                <ButtonContainer className="mt-5 mb-2">
-                  <QuantityGroup>
-                    <ButtonWrapper>
-                      <Minus onClick={handleMinusQty}>
-                        <Remove />
-                      </Minus>
-                      <Num>{qty >= 1 && qty <= 9 ? `0${qty}` : qty}</Num>
-                      <Plus>
-                        <Add onClick={handlePlusQty} />
-                      </Plus>
-                    </ButtonWrapper>
-                  </QuantityGroup>
+                {data?.product?.quantity > 0 ? (
+                  <ButtonContainer className="mt-5 mb-2">
+                    <QuantityGroup>
+                      <ButtonWrapper>
+                        <Minus onClick={handleMinusQty}>
+                          <Remove />
+                        </Minus>
+                        <Num>{qty >= 1 && qty <= 9 ? `0${qty}` : qty}</Num>
+                        <Plus>
+                          <Add onClick={handlePlusQty} />
+                        </Plus>
+                      </ButtonWrapper>
+                    </QuantityGroup>
 
-                  <CustomeNavLink
-                    className="btn btn-dark border-0 rounded-0 mt-3"
+                    <button
+                      className="btn btn-dark border-0 rounded-0 mt-3 w-100"
+                      onClick={handleAddCart}
+                      disabled={stocking}
+                    >
+                      {!isLoading ? "Thêm vào giỏ hàng" : "Đang tải"}
+                    </button>
+                  </ButtonContainer>
+                ) : (
+                  <button
+                    className="btn btn-dark border-0 rounded-0 mt-3 w-100"
                     onClick={handleAddCart}
+                    disabled={true}
                   >
-                    {!isLoading ? "Thêm vào giỏ hàng" : "Đang tải"}
-                  </CustomeNavLink>
-                </ButtonContainer>
+                    Hết hàng
+                  </button>
+                )}
               </Wrapper>
             </DetailContainer>
           </Row>
