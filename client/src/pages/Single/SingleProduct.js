@@ -201,7 +201,7 @@ const SingleProduct = () => {
   };
   const handleMinusQty = () => {
     if (qty - 1 <= 0) {
-      setQty(qty - 1);
+      qty - 1 >= 0 && setQty(qty - 1);
       setStocking(true);
       return;
     } else {

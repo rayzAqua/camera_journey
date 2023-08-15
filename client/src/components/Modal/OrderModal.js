@@ -1,13 +1,15 @@
-import { Add, Remove } from "@material-ui/icons";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { styled } from "styled-components";
-import Slider from "../Slider/Slider";
 import axios from "axios";
 import { useAuthContext } from "../../context/auth";
 import { useNavigate } from "react-router-dom";
-import CartPage from "../../pages/Cart/Cart";
 import CartItem from "../Cart/CartItem";
+import {
+  isAlphabeticString,
+  isNumericString,
+  isAlphaNumbericWithSlashString,
+} from "../../utils/checkInput";
 
 const Container = styled.div``;
 
@@ -147,6 +149,40 @@ const OrderModal = ({ customer, cart }) => {
   }, 0);
 
   const handleChangeInfo = () => {
+    // Validate
+    if (fname && !isAlphabeticString(fname)) {
+      toast.warning("Họ, tên đệm có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (lname && !isAlphabeticString(lname)) {
+      toast.warning("Tên có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (phone && !isNumericString(phone)) {
+      toast.warning("Số điện thoại có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (phone && phone.length !== 10) {
+      toast.warning("Số điện thoại phải có đồ dài 10 số");
+      return;
+    }
+    if (street && !isAlphaNumbericWithSlashString(street)) {
+      toast.warning("Địa chỉ có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (district && !isAlphabeticString(district)) {
+      toast.warning("Quận/huyện có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (city && !isAlphabeticString(city)) {
+      toast.warning("Tỉnh/Thành có chứa ký tự không hợp lệ");
+      return;
+    }
+    if (country && !isAlphabeticString(country)) {
+      toast.warning("Đất nước có chứa ký tự không hợp lệ");
+      return;
+    }
+
     setInfo({
       fname: fname !== "" ? fname : customer?.fname,
       lname: lname !== "" ? lname : customer?.lname,

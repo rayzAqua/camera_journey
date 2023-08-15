@@ -68,6 +68,8 @@ export const createCart = async (req, res, next) => {
       throw createError(400, "Có gì đó xảy ra trong lúc tạo giỏ hàng");
     }
 
+    console.log("Tạo giỏ hành thành công");
+
     res.status(200).json({
       success: true,
       message: "Tạo giỏ hàng thành công",
@@ -133,7 +135,6 @@ export const updateCart = async (req, res, next) => {
         _id: cart._id,
         "items.product_id": product._id,
       });
-      console.log(productIsStocking);
       if (
         cart_quantity + productIsStocking.items[0].quantity >
         product.quantity
@@ -157,7 +158,9 @@ export const updateCart = async (req, res, next) => {
           { $pull: { items: { product_id: product._id } } },
           { new: true }
         );
+        console.log("Xoá khi số lượng là 0 thành công");
       }
+      console.log("Cập nhật số lượng thành công");
     } else {
       // Add new product to cart
       if (cart_quantity <= 0) {
@@ -179,6 +182,7 @@ export const updateCart = async (req, res, next) => {
         },
         { new: true }
       );
+      console.log("Thêm mới thành công");
     }
 
     if (!updateData) {
@@ -236,10 +240,12 @@ export const removeCart = async (req, res, next) => {
     let updateData;
     if (checkProductExistedInCart) {
       updateData = await Cart.findOneAndUpdate(
-        { "items.product_id": product._id },
+        { _id: cart._id, "items.product_id": product._id },
         { $pull: { items: { product_id: product._id } } },
         { new: true }
       );
+      console.log(updateData);
+      console.log("Xoá sản phẩm thành công");
     } else {
       throw createError(400, "Sản phẩm không tồn tại trong giỏ hàng");
     }

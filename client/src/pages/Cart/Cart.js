@@ -145,7 +145,7 @@ const CartPage = () => {
                 <RightTitleWrapper className=" text-center">
                   <RightTitle>
                     Tổng tiền tạm tính:{" "}
-                    <Money className="text-secondary">
+                    <Money className="text-danger">
                       {parseFloat(total).toLocaleString("vi-VN", {
                         style: "currency",
                         currency: "VND",
