@@ -27,6 +27,6 @@ router.patch("/:userid/:id", verifyManager, recoverUserAccount);
 router.get("/:userid/:id", verifyStaff, getUser);
 
 // GET ALL
-router.get("/:userid/", verifyManager, getUsers);
+router.get("/:userid/", verifyStaff, getUsers);
 
 export default router;

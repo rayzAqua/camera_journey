@@ -22,7 +22,7 @@ function App() {
   const ProtectedRoute = ({ children }) => {
     const [auth, setAuth] = useAuthContext();
 
-    if (!auth.user) {
+    if (!auth.user || !auth.token) {
       console.log("Ok");
       return <Navigate to="/login" />;
     }

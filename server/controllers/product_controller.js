@@ -143,7 +143,7 @@ export const updateProduct = async (req, res, next) => {
       if (isProductExistedInBrand) {
         throw createError(
           400,
-          `${req.body.product_name} is existed in ${req.body.product_brand}`
+          `${req.body.product_name} đã tồn tại trong thương hiệu ${req.body.product_brand}`
         );
       }
     }
@@ -338,16 +338,8 @@ export const getProducts = async (req, res, next) => {
 
     if (productArray.length !== 0) {
       const productLists = productArray.map((product) => {
-        const {
-          __v,
-          quantity,
-          desc,
-          details,
-          status,
-          createdAt,
-          updatedAt,
-          ...others
-        } = product._doc;
+        const { __v, desc, details, status, updatedAt, ...others } =
+          product._doc;
         return others;
       });
       // Find with page and without page

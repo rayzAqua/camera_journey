@@ -130,7 +130,7 @@ const OrderHistory = () => {
                 {data?.order?.length !== 0 ? (
                   data?.order?.orders?.map((item, index) => {
                     return (
-                      <OrderItem className="border shadow p-3">
+                      <OrderItem className="border shadow p-3" key={index}>
                         <Table className="table">
                           <TableHeader>
                             <Data>

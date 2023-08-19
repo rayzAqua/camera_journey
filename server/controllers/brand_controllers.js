@@ -122,7 +122,15 @@ export const getBrands = async (req, res, next) => {
   try {
     const brands = await Brand.find().populate({
       path: "products",
-      select: ["_id", "product_name", "product_brand", "product_category"],
+      select: [
+        "_id",
+        "product_name",
+        "product_thumbnails",
+        "product_brand",
+        "product_category",
+        "price",
+        "stocking",
+      ],
       match: { status: "active" },
     });
     if (brands.length === 0) {

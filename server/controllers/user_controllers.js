@@ -42,7 +42,7 @@ export const updateInformation = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Update user successfully",
-      data: updatedUser,
+      user: updatedUser,
     });
   } catch (err) {
     next(err);
@@ -62,7 +62,7 @@ export const deleteUserAccount = async (req, res, next) => {
       throw createError(400, "User already deleted");
     }
 
-    if (String(user._id) === userId) {
+    if (String(user._id) === req.params.userid) {
       throw createError(400, "You can't delete yourself");
     }
 
@@ -79,7 +79,7 @@ export const deleteUserAccount = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Delete user successfully",
-      data: deletedUser,
+      user: deletedUser,
     });
   } catch (err) {
     next(err);
@@ -112,7 +112,7 @@ export const recoverUserAccount = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Recover user successfully",
-      data: activedUser,
+      user: activedUser,
     });
   } catch (err) {
     next(err);
@@ -130,13 +130,12 @@ export const getUser = async (req, res, next) => {
       throw createError(400, "User isn't existed");
     }
 
-    const { __v, status, password, createdAt, updatedAt, ...others } =
-      user._doc;
+    const { __v, status, password, ...others } = user._doc;
 
     res.status(200).json({
       success: true,
       message: "Get user successfully",
-      data: others,
+      user: others,
     });
   } catch (err) {
     next(err);
@@ -174,15 +173,14 @@ export const getUsers = async (req, res, next) => {
 
     if (userArray.length !== 0) {
       const userLists = userArray.map((user) => {
-        const { __v, status, createdAt, updatedAt, password, ...others } =
-          user._doc;
+        const { __v, status, updatedAt, password, ...others } = user._doc;
         return others;
       });
 
-      response.data = userLists;
+      response.user = userLists;
     } else {
       response.message = "No user found";
-      response.data = userArray;
+      response.user = userArray;
     }
 
     res.status(200).json(response);

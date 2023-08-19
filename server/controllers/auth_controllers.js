@@ -59,7 +59,7 @@ export const customerRegister = async (req, res, next) => {
     if (isExisted) {
       return res.status(201).json({
         success: true,
-        message: "Already register, please login",
+        message: "Email đã được đăng ký, hãy đăng nhập",
       });
     }
 
@@ -83,8 +83,7 @@ export const customerRegister = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message:
-        "Register Successfully. An Email sent to your email, please verify",
+      message: "Đăng ký thành công. Một Email xác thực đã được gửi đến cho bạn",
     });
   } catch (err) {
     next(err);
@@ -109,17 +108,17 @@ export const customerLogin = async (req, res, next) => {
     const customer = await Customer.findOne({ email: loginEmail });
 
     if (!customer) {
-      throw createError(400, "Email not found, please register");
+      throw createError(400, "Email chưa được đăng ký");
     }
 
     if (customer.status === "inactive") {
-      throw createError(400, "This account was locked");
+      throw createError(400, "Tài khoản này đã bị khoá");
     }
 
     // Compare password
     const isPwCompare = await comparePassword(loginPassword, customer.password);
     if (!isPwCompare) {
-      throw createError(400, "Wrong password");
+      throw createError(400, "Sai mật khẩu");
     }
 
     // Check email verified
@@ -135,7 +134,7 @@ export const customerLogin = async (req, res, next) => {
       return res.status(200).json({
         success: false,
         message:
-          "Your account aren't verified. An Email sent to your account please verify!",
+          "Tài khoản của bạn chưa được xác thực. Hãy xác thực trước khi đăng nhập",
       });
     }
 
@@ -158,7 +157,7 @@ export const customerLogin = async (req, res, next) => {
       .header("Authorization", "Bearer " + jwt_token)
       .json({
         success: true,
-        message: "Login successfully",
+        message: "Đăng nhập thành công",
         customer: others,
       });
   } catch (err) {
@@ -181,7 +180,8 @@ export const staffRegister = async (req, res, next) => {
     if (!email || email === "") {
       throw createError(400, "Email is Required");
     }
-    if (!password) {
+    if (password === undefined) {
+      console.log(password);
       throw createError(400, "Password is Required");
     }
 
@@ -190,14 +190,14 @@ export const staffRegister = async (req, res, next) => {
     if (isExisted) {
       return res.status(201).json({
         success: true,
-        message: "This Staff already existed",
+        message: "Địa chỉ email này đã tồn tại, hãy thử lại",
       });
     }
 
     // Register User
     // If input haven't password, password will equal to staff email
     const hashedPassword = await hashPassword(
-      password !== "" ? password : email
+      password !== "" || password ? password : email
     );
     const newUser = new User({
       lname: lname,
@@ -215,8 +215,7 @@ export const staffRegister = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message:
-        "Staff register successful. An Email sent to staff email, please verify",
+      message: "Đăng ký cho nhân viên thành công. Hãy thực hiện việc xác thực",
     });
   } catch (err) {
     next(err);
@@ -360,7 +359,7 @@ export const verifyAccount = async (req, res, next) => {
     console.log(isStaffOrCustomer);
 
     if (!isStaffOrCustomer) {
-      throw createError(400, "Type of user is required");
+      throw createError(400, "Cần thông tin là khách hàng hay nhân viên");
     }
 
     const userId = req.params.id;
@@ -371,13 +370,19 @@ export const verifyAccount = async (req, res, next) => {
     if (isStaffOrCustomer === "staff") {
       user = await User.findById(userId).where({ status: "active" });
       if (!user) {
-        throw createError(400, "Staff isn't existed!");
+        throw createError(
+          400,
+          "Nhân viên không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
     if (isStaffOrCustomer === "customer") {
       user = await Customer.findById(userId).where({ status: "active" });
       if (!user) {
-        throw createError(400, "Customer isn't existed!");
+        throw createError(
+          400,
+          "Khách hàng không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
 
@@ -387,7 +392,7 @@ export const verifyAccount = async (req, res, next) => {
       token: verifyToken,
     });
     if (!token) {
-      throw createError(400, "Invalid link!");
+      throw createError(400, "Đường dẫn xác thực không hợp lệ");
     }
 
     // Verified.
@@ -468,14 +473,14 @@ export const changePassword = async (req, res, next) => {
     console.log(isStaffOrCustomer);
 
     if (!isStaffOrCustomer) {
-      throw createError(400, "Type of user is required");
+      throw createError(400, "Cần thông tin là khách hàng hay nhân viên");
     }
 
     const userId = req.body.id;
 
     // Check email or userId
     if (!userId || userId === "") {
-      throw createError(400, "Can't find user infomation");
+      throw createError(400, "Thông tin người dùng không được để trống");
     }
 
     let user;
@@ -485,7 +490,10 @@ export const changePassword = async (req, res, next) => {
         status: "active",
       });
       if (!user) {
-        throw createError(400, "Staff isn't existed");
+        throw createError(
+          400,
+          "Nhân viên không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
     if (isStaffOrCustomer === "customer") {
@@ -493,7 +501,10 @@ export const changePassword = async (req, res, next) => {
         status: "active",
       });
       if (!user) {
-        throw createError(400, "Customer isn't existed");
+        throw createError(
+          400,
+          "Khách hàng không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
 
@@ -546,12 +557,15 @@ export const forgetPassword = async (req, res, next) => {
     console.log(isStaffOrCustomer);
 
     if (!isStaffOrCustomer) {
-      throw createError(400, "Type of user is required");
+      throw createError(
+        400,
+        "Cần thông tin là khách hàng hay nhân viên (role)"
+      );
     }
 
     const email = req.body.email;
     if (!email || email === "") {
-      throw createError(400, "Email is required");
+      throw createError(400, "Cần thông tin Email");
     }
 
     let user;
@@ -567,7 +581,7 @@ export const forgetPassword = async (req, res, next) => {
       });
     }
     if (!user) {
-      throw createError(400, "Email isn't existed");
+      throw createError(400, "Email không tồn tại");
     }
 
     await resetPassword(user._id, user.email, isStaffOrCustomer);
@@ -588,7 +602,10 @@ export const resetPasswordForget = async (req, res, next) => {
     console.log(isStaffOrCustomer);
 
     if (!isStaffOrCustomer) {
-      throw createError(400, "Type of user is required");
+      throw createError(
+        400,
+        "Cần thông tin là khách hàng hay nhân viên (role)"
+      );
     }
 
     const userId = req.params.id;
@@ -599,13 +616,19 @@ export const resetPasswordForget = async (req, res, next) => {
     if (isStaffOrCustomer === "staff") {
       user = await User.findById(userId).where({ status: "active" });
       if (!user) {
-        throw createError(400, "Staff isn't existed!");
+        throw createError(
+          400,
+          "Nhân viên không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
     if (isStaffOrCustomer === "customer") {
       user = await Customer.findById(userId).where({ status: "active" });
       if (!user) {
-        throw createError(400, "Customer isn't existed!");
+        throw createError(
+          400,
+          "Khách hàng không tồn tại hoặc chưa được đăng ký"
+        );
       }
     }
 
@@ -615,7 +638,7 @@ export const resetPasswordForget = async (req, res, next) => {
       token: verifyToken,
     });
     if (!token) {
-      throw createError(400, "Invalid link!");
+      throw createError(400, "Đường dẫn không hợp lệ");
     }
 
     // Change password
@@ -642,7 +665,11 @@ export const resetPasswordForget = async (req, res, next) => {
 
     console.log("I do it reset password!");
 
-    res.status(200).send("Reset password successfully");
+    res
+      .status(200)
+      .send(
+        "<div><h1>Đăng lại mật khẩu thành công</h1><p>Hãy kiểm tra email</p></div>"
+      );
   } catch (err) {
     next(err);
   }

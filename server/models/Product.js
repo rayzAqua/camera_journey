@@ -101,9 +101,12 @@ ProductSchema.post("save", async function (results) {
 ProductSchema.pre("findOneAndUpdate", async function () {
   let new_quantity;
 
-  if (this.getUpdate().$set.quantity !== undefined) {
+  if (this.getUpdate().$set && this.getUpdate().$set.quantity !== undefined) {
     new_quantity = this.getUpdate().$set.quantity;
-  } else if (this.getUpdate().$inc.quantity !== undefined) {
+  } else if (
+    this.getUpdate().$inc &&
+    this.getUpdate().$inc.quantity !== undefined
+  ) {
     new_quantity = await caculateNewQuantityFromInc(
       this.getUpdate().$inc.quantity,
       this.getFilter()._id

@@ -157,15 +157,15 @@ export const updateOrder = async (req, res, next) => {
       _id: orderId,
     }).where({ status: { $nin: ["complete", "cancel"] } });
     if (!order) {
-      throw createError(400, "Không tìm thấy đơn đặt");
+      throw createError(400, "Đơn đặt đã hoàn thành hoặc đã huỷ");
     }
 
     const status = req.body.status;
 
     const statusTransition = {
-      pending: ["process", "cancel"],
-      process: ["shipping", "cancel"],
-      shipping: ["complete", "cancel"],
+      pending: ["process", "shipping", "complete", "cancel"],
+      process: ["pending", "shipping", "complete", "cancel"],
+      shipping: ["pending", "process", "complete", "cancel"],
     };
 
     if (
@@ -182,12 +182,6 @@ export const updateOrder = async (req, res, next) => {
       { _id: order._id },
       {
         $set: { status: status },
-        $push: {
-          staff: {
-            fname: user.fname,
-            lname: user.lname,
-          },
-        },
       },
       { new: true }
     );
@@ -196,10 +190,38 @@ export const updateOrder = async (req, res, next) => {
       throw createError(400, "Có gì đó xảy ra trong lúc sửa đơn hàng");
     }
 
+    const findUserInStaff = await Order.findOne({
+      _id: updatedOrder._id,
+      staff: { $elemMatch: { id: user._id } },
+    });
+    let addStaff;
+    if (!findUserInStaff) {
+      console.log(findUserInStaff);
+      addStaff = await Order.findByIdAndUpdate(
+        { _id: updatedOrder._id },
+        {
+          $push: {
+            staff: {
+              id: user._id,
+              fname: user.fname,
+              lname: user.lname,
+            },
+          },
+        },
+        { new: true }
+      );
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "Cập nhật trạng thái đơn hàng thành công",
+        order: updatedOrder,
+      });
+    }
+
     res.status(200).json({
       success: true,
       message: "Cập nhật trạng thái đơn hàng thành công",
-      order: updatedOrder,
+      order: addStaff,
     });
   } catch (err) {
     next(err);
@@ -297,10 +319,12 @@ export const getOrders = async (req, res, next) => {
       });
       return {
         _id: _id,
-        customer: {
+        customer_name: {
           fname: customer.fname,
           lname: customer.lname,
         },
+        customer_email: customer.email,
+        customer_phone: customer.phone,
         cart: cartDetails,
         payment: payment,
         staff: staffDetails,

@@ -28,6 +28,7 @@ const OrderSchema = new mongoose.Schema(
     },
     staff: [
       {
+        id: { type: Types.ObjectId, required: true },
         fname: { type: String, required: true },
         lname: { type: String, required: true },
         modifiedAt: { type: Date, default: Date.now },
