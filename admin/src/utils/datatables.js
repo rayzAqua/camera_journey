@@ -130,9 +130,14 @@ export const order_columns = [
     renderCell: (params) => (
       <div>
         {params.value.map((item, index) => (
-          <div key={index}>{`${item.product_name} (x${
-            item.quantity
-          }): ${parseFloat(item.price).toLocaleString("vi-VN", {
+          <div
+            key={index}
+            style={{
+              whiteSpace: "pre-line",
+            }}
+          >{`${item.product_name} (x${item.quantity}): ${parseFloat(
+            item.price
+          ).toLocaleString("vi-VN", {
             style: "currency",
             currency: "VND",
           })}`}</div>

@@ -14,7 +14,7 @@ export const isAlphabeticString = (str) => {
 
 export const isAlphaNumbericString = (str) => {
   // Sử dụng biểu thức chính quy để kiểm tra chuỗi chỉ chứa ký tự alphabet a-z, A-Z, , 0-9
-  const alphanumbericRegex = /^[a-zA-Z0-9\sÀ-ỹ]+$/;
+  const alphanumbericRegex = /^[a-zA-Z0-9\sÀ-ỹ-]+$/;
 
   return alphanumbericRegex.test(str);
 };
