@@ -240,17 +240,17 @@ export const staffLogin = async (req, res, next) => {
     const staff = await User.findOne({ email: loginEmail });
 
     if (!staff) {
-      throw createError(400, "Email not found, please register");
+      throw createError(400, "Email chưa được đăng ký");
     }
 
     if (staff.status === "inactive") {
-      throw createError(400, "This account was deleted");
+      throw createError(400, "Tài khoản này đã bị khoá");
     }
 
     // Compare password
     const isPwCompare = await comparePassword(loginPassword, staff.password);
     if (!isPwCompare) {
-      throw createError(400, "Wrong password");
+      throw createError(400, "Sai mật khẩu");
     }
 
     // Check email verified
@@ -265,7 +265,7 @@ export const staffLogin = async (req, res, next) => {
 
       return res.status(400).json({
         success: false,
-        message: "An Email sent to your account please verify!",
+        message: "Một Email xác thực đã được gửi đến bạn, hãy kiểm tra",
       });
     }
 
@@ -289,7 +289,7 @@ export const staffLogin = async (req, res, next) => {
       .header("Authorization", "Bearer " + jwt_token)
       .json({
         success: true,
-        message: "Login successfully",
+        message: "Đăng nhập thành công",
         user: others,
       });
   } catch (err) {
