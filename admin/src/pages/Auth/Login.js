@@ -54,7 +54,7 @@ const Login = () => {
       });
       // Handle data
       if (res && res.data.success) {
-        toast.success(`${res.data.message}, please wait`);
+        toast.success(`${res.data.message}, đợi một lát`);
         const token = res.headers["authorization"];
         localStorage.setItem("user", JSON.stringify(res.data.user));
         localStorage.setItem("token", JSON.stringify(token));
